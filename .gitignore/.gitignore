@@ -1,0 +1,214 @@
+//Student Name: 	Shane 
+
+const cars = require("./carsOOP")
+
+class Owner{
+	constructor(name,address,car,poetry){
+		this.name = name;
+		this.address = address;
+		this.car = car;
+		this.poetry = poetry;
+	}
+	print(){
+		console.log("Owner has:", this.name, this.address, this.poetry)
+	}
+}
+
+class Vehicle{
+	constructor(engine,chassisNumber,owner,odometer,NumOfWheels){
+		this.engine = engine
+		this.chassisNumber = chassisNumber
+		this.owner = owner
+		this.odometer = odometer
+		this.NumOfWheels = NumOfWheels
+	}
+	print(){
+		console.log("Vehicle has:", this.engine, this.chassisNumber, this.owner, this.odometer, this.NumOfWheels)
+	}
+	
+	//Update()
+	update(oneCar){
+		if (this.chassisNumber === oneCar.chassis){
+			if (this.owner === oneCar.owner){
+				this.odometer = oneCar.distance
+				this.engine.totalRunningTime = oneCar.runtime
+				//console.log("This works")
+			}else{
+				console.log("WARNING The Driver is not correct", oneCar.owner, "is driving not Alexis.")
+			}	
+		}
+	}
+}
+
+class Engine{
+	constructor(engineNumber,sizeLitres,totalRunningTime){
+		this.engineNumber = engineNumber;
+		this.sizeLitres = sizeLitres;
+		this.totalRunningTime = totalRunningTime;
+	}
+	print(){
+		console.log("Engine has:", this.engineNumber, this.sizeLitres, this.totalRunningTime)
+	}
+}
+
+let ownerNew = new Owner("John", "Tallaght", "Shakespear");
+let engineNew = new Engine(1234565, 16, 995);
+let vehicleNew = new Vehicle(engineNew, "J9O 5P3", "Alexis", "000.00", 4);
+
+ownerNew.print();
+vehicleNew.print();
+engineNew.print();
+
+cars.filter( x => vehicleNew.update(x));
+
+//What is the average runtime? 
+let sumRunTime = cars.reduce((sumRunTime,cars)=> sumRunTime + cars.runtime, 0)
+console.log("The average Run Time is: ", sumRunTime/cars.length)
+
+//Convert Distance which is a string into a float
+let distanceNumbers =  x=> ({chassis: x.chassis, owner: x.owner, distance: parseFloat(x.distance), runtime: x.runtime})
+let distanceNumbersArray = cars.map(distanceNumbers)
+//console.log(distanceNumbersArray)
+ 
+//What is the SD of the distance? (you have code for this, try reuse it) 
+//What is the average distance? 
+let sumDistance = distanceNumbersArray.reduce((sumDistance,distanceNumbersArray)=> sumDistance + distanceNumbersArray.distance, 0)
+console.log("The average distance is: ", (sumDistance/distanceNumbersArray.length).toFixed(3))
+
+//Subtract each data point from the mean, then square the result eg (30-26.6666)2
+let squarePopulationDistance =  x=> ({distance: Math.pow((x.distance -(sumDistance/distanceNumbersArray.length)),2)})
+let squarePopulationDistanceArray = distanceNumbersArray.map(squarePopulationDistance)
+//console.log("squarePopulation of distance is now ", squarePopulationDistanceArray)
+
+//add all these new squared data points together
+
+let squarePopulationDistanceAdded = squarePopulationDistanceArray.reduce(
+		(sum,squarePopulationDistanceArray)=> sum + squarePopulationDistanceArray.distance, 0)
+console.log("The sum of all (distance - μ)2 is: ", squarePopulationDistanceAdded.toFixed(3))
+
+//divide your total by array.length to get the population variance
+let distancePopulationVariance = (squarePopulationDistanceAdded/squarePopulationDistanceArray.length)
+console.log("The population variance for distance is: ", distancePopulationVariance.toFixed(3))
+
+//Onto the standard devation of Run Time
+let distanceStandardDevation = Math.sqrt(distancePopulationVariance)
+console.log("The standard devation σ for distance is: ", distanceStandardDevation.toFixed(3))
+
+//let StandardDev = function(values){
+//	return Math.sqrt(values.reduce((count,x) => count + Math.pow(x.distance) - values.reduce(count,x) => count(x.distance),0)/values.length),2,0)/values.length
+//}
+//console.log("The standard devation σ for distance is: ", StandardDev)
+
+//Who drove the most distance in one sitting?  
+let most = distanceNumbersArray.sort((a,b)=>a.distance>b.distance?-1:1);
+console.log(most[0].owner, "Drove the most distance in one sitting with",most[0].distance.toFixed(3),"kms");
+
+//Who drove the most distance in total?
+let ownerDistance = function(owner) {return distanceNumbersArray.filter(x => x.owner === owner).reduce((count,x) => count + x.distance, 0)}
+let maxDistance = function(values) {return values.map(x => ({owner: x, distance: ownerDistance(x)}))
+.reduce((previous,current) => {return (previous.distance > current.distance) ? previous:current})}
+
+let namesSet = [...new Set(distanceNumbersArray.map(x => x.owner))]
+//console.log(namesSet);
+console.log(maxDistance(namesSet).owner, "drove the most distance in total", "with", maxDistance(namesSet).distance.toFixed(3), "kms");
+
+
+//How many people called Alexis or Alex? (regex + reduce)
+let Alexis = distanceNumbersArray.filter(x => x.owner.match(/(Alexis|Alex)/g)).reduce((count, x) => ++count, 0)
+console.log("The name \"Alexis\" or \"Alex\" appears", Alexis, "times");
+
+console.log(" ")
+console.log("*** Part 2 ***")
+console.log(" ")
+
+//const poems = require("./quoteOOP");
+
+const vehicle = {
+	engine: function (engine){
+		this.engine = engine
+	},
+	chassisNumber: function (chassisNumber){
+		this.chassisNumber = chassisNumber
+	},
+	owner: function (owner){
+		this.owner = owner
+	},
+	odometer: function (odometer){
+		this.odometer = odometer
+	},
+	numberOfWheels: function (numberOfWheels){
+		this.numberOfWheels = numberOfWheels
+	},
+	distanceTraveled: function(){
+		return this.odometer
+	},
+	carsOwner: function(){
+		return this.owner
+	}
+}
+const engine = {
+	engineNumber: function (engineNumber){
+		this.engineNumber = engineNumber
+	},
+	size: function (size){
+		this.size = size
+	},
+	totalRunningTime: function (totalRunningTime){
+		this.totalRunningTime = totalRunningTime
+	},
+	runningTime: function(){
+		return this.totalRunningTime
+	}
+}
+const person = {
+	name: function (name){
+		this.name = name
+	},
+	address: function (address){
+		this.address = address
+	},
+	driveVehicle: function (){
+ 
+	},
+	readPoetry: function(){
+		console.log ("\"It's easier to quote poets than to read them\" by Allison Barrows")
+	}
+}
+
+//prototypes
+const car = {
+	name: function (name) {this.name = name},
+	drive: function (){
+		console.log("Const car is driving the" , this.name)
+	}
+}
+
+//create an object using a prototype (inheritance)
+const bmw = Object.create(car) 
+bmw.name('BMW')
+bmw.drive()
+
+console.log("The car is a proto type of BMW:",car.isPrototypeOf(bmw))
+
+//see the BMW prototype object:
+console.log("bmw prototype: ", bmw.__proto__)
+
+
+car.drive = function (){
+	console.log("edit:Driving the " , this.name)
+}
+
+const quotes = {
+	quotes: function (){
+		console.log("This is a quote!")
+	}
+}
+
+console.log("Object.assign: BMW, Quotes:")
+Object.assign(bmw,quotes) //assign allows us to compose (composition)
+//console.log(bmw.quotes())
+bmw.quotes()
+
+console.log("bmw.readPoetry:")
+Object.assign(bmw,person) 
+bmw.readPoetry()
